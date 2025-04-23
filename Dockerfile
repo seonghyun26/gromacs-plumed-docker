@@ -1,5 +1,6 @@
 #FROM nvidia/cuda:11.0.3-devel-ubuntu20.04 as builder
-FROM nvidia/cuda:12.6.2-devel-ubuntu24.04 as builder
+# FROM nvidia/cuda:12.6.2-devel-ubuntu24.04 as builder
+FROM nvidia/cuda:11.8.0-devel-ubuntu22.04 as builder
 MAINTAINER Ales Krenek <ljocha@ics.muni.cz> 
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -93,12 +94,15 @@ RUN ./build-gmx.sh -s gromacs-${GROMACS_VERSION} -j ${JOBS} -a AVX_512 -r -d
 #    rm torch.zip
 
 
-FROM nvidia/cuda:12.6.2-runtime-ubuntu24.04 
+# FROM nvidia/cuda:12.6.2-runtime-ubuntu24.04 
+FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04 
 
 RUN apt update
 RUN apt install -y openmpi-bin
 # XXX: RUN apt install -y libcufft-12-6 libmpich12 libblas3 libgomp1 
 RUN apt install -y rsync libblas3
+RUN apt update && apt install -y python3 python3-pip
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 COPY --from=builder /build/libtorch /build/libtorch
 ENV LD_LIBRARY_PATH=/build/libtorch/lib:$LD_LIBRARY_PATH
