@@ -1,10 +1,8 @@
-#FROM nvidia/cuda:11.0.3-devel-ubuntu20.04 as builder
-# FROM nvidia/cuda:12.6.2-devel-ubuntu24.04 as builder
 FROM nvidia/cuda:11.8.0-devel-ubuntu22.04 as builder
 MAINTAINER Ales Krenek <ljocha@ics.muni.cz> 
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/Prague
+ENV TZ=Asia/Seoul
 
 ARG JOBS=8
 
@@ -62,7 +60,6 @@ RUN cd plumed2 && ./configure --enable-libtorch --enable-modules=all && make -j 
 RUN ldconfig
 
 RUN apt update
-RUN apt install -y python3
 
 ARG GROMACS_VERSION=2024.3
 ARG GROMACS_MD5=2eb4cd478cc5178fc9f67d66fcf48ed6
@@ -85,8 +82,6 @@ RUN ./build-gmx.sh -s gromacs-${GROMACS_VERSION} -j ${JOBS} -a AVX_512 -r
 RUN ./build-gmx.sh -s gromacs-${GROMACS_VERSION} -j ${JOBS} -a AVX_512 -r -d
 
 
-#RUN apt-get install -y python3 python3-pip
-#RUN pip3 install torch --extra-index-url https://download.pytorch.org/whl/cpu
 
 #RUN cd /build && \
 #    curl https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip --output torch.zip && \
@@ -94,7 +89,6 @@ RUN ./build-gmx.sh -s gromacs-${GROMACS_VERSION} -j ${JOBS} -a AVX_512 -r -d
 #    rm torch.zip
 
 
-# FROM nvidia/cuda:12.6.2-runtime-ubuntu24.04 
 FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04 
 
 RUN apt update
@@ -103,6 +97,7 @@ RUN apt install -y openmpi-bin
 RUN apt install -y rsync libblas3
 RUN apt update && apt install -y python3 python3-pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN python3 -m pip install torch numpy wandb matplotlib scikit-learn scipy pandas
 
 COPY --from=builder /build/libtorch /build/libtorch
 ENV LD_LIBRARY_PATH=/build/libtorch/lib:$LD_LIBRARY_PATH
