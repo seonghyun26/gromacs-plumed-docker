@@ -13,6 +13,7 @@ ARG JOBS=8
 #enable contributed packages
 #RUN sed -i 's/main/main contrib/g' /etc/apt/sources.list
 
+RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 RUN cat /etc/apt/sources.list
 #install dependencies
 RUN apt-get update 
@@ -97,7 +98,7 @@ RUN apt install -y openmpi-bin
 RUN apt install -y rsync libblas3
 RUN apt update && apt install -y python3 python3-pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN python3 -m pip install torch numpy wandb matplotlib scikit-learn scipy pandas
+RUN python3 -m pip install torch numpy wandb matplotlib scikit-learn scipy pandas hydra-core tqdm mdtraj pyemma
 
 COPY --from=builder /build/libtorch /build/libtorch
 ENV LD_LIBRARY_PATH=/build/libtorch/lib:$LD_LIBRARY_PATH
